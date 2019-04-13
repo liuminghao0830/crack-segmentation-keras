@@ -4,6 +4,7 @@ from keras.optimizers import Adam
 import Models, LoadBatches
 from Models.Segnet import segnet
 from Models.FCN import *
+from Models.Unet import unet
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--train_images", type=str)
@@ -37,7 +38,7 @@ if args.val_images:
     val_images_path = args.val_images
     val_segs_path = args.val_annotations
 
-model_zoo = {'segnet': segnet, 'FCN_Resnet50': FCN_Resnet50,
+model_zoo = {'segnet': segnet, 'unet':unet,'FCN_Resnet50': FCN_Resnet50,
              'FCN_Vgg16':FCN_Vgg16, 'AtrousFCN_Vgg16': AtrousFCN_Vgg16,
              'AtrousFCN_Resnet50':AtrousFCN_Resnet50}
 

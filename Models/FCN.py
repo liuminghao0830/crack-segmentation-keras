@@ -6,6 +6,8 @@ import keras.backend as K
 from utils import *
 from BilinearUpSampling import *
 
+K.set_image_data_format('channels_last')
+
 def FCN_Vgg16(input_shape=None):
     img_input = Input(shape=input_shape)
     # Block 1
@@ -48,6 +50,7 @@ def FCN_Vgg16(input_shape=None):
     x = BilinearUpSampling2D(size=(32, 32))(x)
 
     model = Model(img_input, x)
+    model.summary()
 
     return model
 
@@ -94,6 +97,7 @@ def AtrousFCN_Vgg16(input_shape=None):
     x = BilinearUpSampling2D(target_size=(input_shape[0], input_shape[1]))(x)
 
     model = Model(img_input, x)
+    model.summary()
 
     return model
 
@@ -101,10 +105,8 @@ def AtrousFCN_Vgg16(input_shape=None):
 def FCN_Resnet50(input_shape = None):
     img_input = Input(shape=input_shape)
 
-    bn_axis = 3
-
     x = Conv2D(64, (7, 7), strides=(2, 2), padding='same', name='conv1')(img_input)
-    x = BatchNormalization(axis=bn_axis, name='bn_conv1')(x)
+    x = BatchNormalization(name='bn_conv1')(x)
     x = Activation('relu')(x)
     x = MaxPooling2D((3, 3), strides=(2, 2))(x)
 
@@ -142,10 +144,8 @@ def FCN_Resnet50(input_shape = None):
 def AtrousFCN_Resnet50(input_shape = None):
     img_input = Input(shape=input_shape)
 
-    bn_axis = 3
-
     x = Conv2D(64, (7, 7), strides=(2, 2), padding='same', name='conv1')(img_input)
-    x = BatchNormalization(axis=bn_axis, name='bn_conv1')(x)
+    x = BatchNormalization(name='bn_conv1')(x)
     x = Activation('relu')(x)
     x = MaxPooling2D((3, 3), strides=(2, 2))(x)
 
@@ -173,5 +173,6 @@ def AtrousFCN_Resnet50(input_shape = None):
     x = BilinearUpSampling2D(target_size=(input_shape[0], input_shape[1]))(x)
 
     model = Model(img_input, x)
+    model.summary()
 
     return model
