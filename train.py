@@ -3,20 +3,22 @@ from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStoppin
 from keras.optimizers import Adam 
 import Models, LoadBatches
 from Models.Segnet import segnet
-from Models.FCN import FCN_Resnet50_32s
+from Models.FCN import *
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--train_images", type = str)
-parser.add_argument("--train_annotations", type = str)
-parser.add_argument("--img_height", type=int, default = 224)
-parser.add_argument("--img_width", type=int, default = 224)
+parser.add_argument("--train_images", type=str)
+parser.add_argument("--train_annotations", type=str)
+parser.add_argument("--img_height", type=int, default=224)
+parser.add_argument("--img_width", type=int, default=224)
 
-parser.add_argument("--val_images", type = str, default = None)
-parser.add_argument("--val_annotations", type = str, default = None)
+parser.add_argument("--val_images", type=str, default=None)
+parser.add_argument("--val_annotations", type=str, default=None)
 
-parser.add_argument("--epochs", type = int, default = 50)
-parser.add_argument("--batch_size", type = int, default = 16)
-parser.add_argument("--load_weights", type = str, default = None)
+parser.add_argument("--epochs", type=int, default=50)
+parser.add_argument("--batch_size", type=int, default=16)
+parser.add_argument("--load_weights", type=str, default=None)
+
+parser.add_argument("--model", type=str, default='segnet')
 
 
 args = parser.parse_args()
@@ -35,8 +37,13 @@ if args.val_images:
     val_images_path = args.val_images
     val_segs_path = args.val_annotations
 
-#m = segnet(input_height=img_height, input_width=img_width)
-m = FCN_Resnet50_32s(input_shape=(img_height, img_width, 3))
+model_zoo = {'segnet': segnet, 'FCN_Resnet50': FCN_Resnet50,
+			 'FCN_Vgg16':FCN_Vgg16, 'AtrousFCN_Vgg16': AtrousFCN_Vgg16,
+			 'AtrousFCN_Resnet50':AtrousFCN_Resnet50}
+
+print('Training on '+args.model)
+
+m = model_zoo[args.model](input_shape=(img_height, img_width, 3))
 m.compile(loss='mean_squared_error',
                 optimizer= Adam(lr=1e-4),
                 metrics=['accuracy'])
@@ -55,7 +62,7 @@ if args.val_images:
                 val_segs_path, batch_size, img_height, img_width)
 
 
-checkpoint = ModelCheckpoint('weights.h5', monitor='val_acc', verbose=1, 
+checkpoint = ModelCheckpoint(args.model+'.h5', monitor='val_acc', verbose=1, 
                     save_best_only=True, mode='max', save_weights_only=True)
 reduceLROnPlat = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5,  
                                    verbose=1, mode='auto', epsilon=0.0001)

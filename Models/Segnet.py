@@ -8,10 +8,9 @@ from keras import backend as K
 K.set_image_data_format('channels_last')
 
 
-def segnet(input_height=224, input_width=224):
+def segnet(input_shape):
     kernel = 3
     pool_size = 2
-    input_shape = (input_width, input_height, 3)
 
     encoding_layers = [
         Conv2D(64, kernel_size=kernel, strides=1, padding='same'),
