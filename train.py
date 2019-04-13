@@ -38,8 +38,8 @@ if args.val_images:
     val_segs_path = args.val_annotations
 
 model_zoo = {'segnet': segnet, 'FCN_Resnet50': FCN_Resnet50,
-			 'FCN_Vgg16':FCN_Vgg16, 'AtrousFCN_Vgg16': AtrousFCN_Vgg16,
-			 'AtrousFCN_Resnet50':AtrousFCN_Resnet50}
+             'FCN_Vgg16':FCN_Vgg16, 'AtrousFCN_Vgg16': AtrousFCN_Vgg16,
+             'AtrousFCN_Resnet50':AtrousFCN_Resnet50}
 
 print('Training on '+args.model)
 
@@ -52,7 +52,7 @@ if load_weights:
     m.load_weights(load_weights)
 
 
-print("Model output shape:", m.output_shape)
+print("Model output shape: {}".format(m.output_shape))
 
 train_gen = LoadBatches.imageSegmentationGenerator(train_images_path, 
             train_segs_path, batch_size, img_height, img_width)

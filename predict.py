@@ -1,18 +1,22 @@
 import argparse
-import Models , LoadBatches
-from Models.Segnet import segnet
-import glob
+import Models, LoadBatches
+import glob, os
 import cv2
 import numpy as np
-import random
 import matplotlib.pyplot as plt
 
+import keras
+from Models.Segnet import segnet
+from Models.FCN import *
+
 parser = argparse.ArgumentParser()
-parser.add_argument("--save_weights_path", type = str)
-parser.add_argument("--test_images", type = str)
-parser.add_argument("--output_path", type = str)
-parser.add_argument("--img_height", type=int, default = 224)
-parser.add_argument("--img_width", type=int, default = 224)
+parser.add_argument("--save_weights_path", type=str)
+parser.add_argument("--test_images", type=str)
+parser.add_argument("--output_path", type=str)
+parser.add_argument("--img_height", type=int, default=224)
+parser.add_argument("--img_width", type=int, default=224)
+
+parser.add_argument("--model", type=str, default='segnet')
 
 args = parser.parse_args()
 
@@ -20,19 +24,30 @@ images_path = args.test_images
 img_width =  args.img_width
 img_height = args.img_height
 
-m = segnet(input_height=img_height, input_width=img_width)
+model_zoo = {'segnet': segnet, 'FCN_Resnet50': FCN_Resnet50,
+             'FCN_Vgg16':FCN_Vgg16, 'AtrousFCN_Vgg16': AtrousFCN_Vgg16,
+             'AtrousFCN_Resnet50':AtrousFCN_Resnet50}
+
+print('Training on '+args.model)
+
+m = model_zoo[args.model](input_shape=(img_height, img_width, 3))
+m.compile(loss='mean_squared_error',
+          optimizer= keras.optimizers.Adam(lr=1e-4),
+          metrics=['accuracy'])
+
 m.load_weights(args.save_weights_path)
-m.compile(loss='categorical_crossentropy',
-      				optimizer= 'adam',
-      				metrics=['accuracy'])
 
 images = glob.glob(images_path + '*.jpg')
 images.sort()
 
-images = np.random.choice(images, 10, replace=False)
+output_path = args.model+'_predict/'
+if not os.path.exists(output_path):
+    os.mkdir(output_path)
+
+images = np.random.choice(images, 100, replace=False)
 
 for imgName in images:
-    #outName = imgName.replace(images_path, args.output_path)
+    outName = imgName.replace(images_path, output_path)
     X = LoadBatches.getImageArr(imgName, img_width, img_height)
     pr = m.predict(X[np.newaxis,:,:,:])[0]
     fig=plt.figure(figsize=(8, 4))
@@ -40,6 +55,4 @@ for imgName in images:
     plt.imshow(pr[:,:,0])
     fig.add_subplot(1, 2, 2)
     plt.imshow(X)
-    plt.show()
-    #cv2.imwrite(outName, seg_img)
-
+    plt.savefig(outName)
