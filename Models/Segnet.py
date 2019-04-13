@@ -116,28 +116,18 @@ def segnet(input_height=224, input_width=224):
     ]
 
 
-    model = Sequential()
+    segnet_basic = Sequential()
 
-    model.add(Layer(input_shape=input_shape))
+    segnet_basic.add(Layer(input_shape=input_shape))
 
-    model.encoding_layers = encoding_layers
-    for layer in model.encoding_layers:
-        model.add(layer)
+    segnet_basic.encoding_layers = encoding_layers
+    for layer in segnet_basic.encoding_layers:
+        segnet_basic.add(layer)
 
+    segnet_basic.decoding_layers = decoding_layers
+    for layer in segnet_basic.decoding_layers:
+        segnet_basic.add(layer)
 
-    model.decoding_layers = decoding_layers
-    for layer in model.decoding_layers:
-        model.add(layer)
-
-    '''
-    model.add(Convolution2D(nClasses, kernel_size=1, strides=1, padding='valid'))
-
-    model.add(Reshape((nClasses, input_height*input_width), 
-        input_shape=(nClasses, input_width, input_height)))
-    
-    model.add(Permute((2, 1)))
-    model.add(Activation('softmax'))
-    '''
-    model.summary()
-    return model
+    segnet_basic.summary()
+    return segnet_basic
 
