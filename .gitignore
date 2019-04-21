@@ -1,2 +1,5 @@
 __pycache__/
 *.pyc
+*.h5
+test_models/
+*_predict/

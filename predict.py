@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 
 import keras
 from Models.Segnet import segnet
-from Models.FCN import *
+from Models.Segnet_basic import segnet_basic
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--save_weights_path", type=str)
@@ -24,10 +25,7 @@ images_path = args.test_images
 img_width =  args.img_width
 img_height = args.img_height
 
-model_zoo = {'segnet': segnet, 'FCN_Resnet50': FCN_Resnet50,
-             'FCN_Vgg16':FCN_Vgg16, 'AtrousFCN_Vgg16': AtrousFCN_Vgg16,
-             'AtrousFCN_Resnet50':AtrousFCN_Resnet50}
-
+model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic}
 print('Training on '+args.model)
 
 m = model_zoo[args.model](input_shape=(img_height, img_width, 3))
