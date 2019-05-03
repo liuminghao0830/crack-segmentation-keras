@@ -123,11 +123,8 @@ def segnet(input_shape):
 
     outputs = Convolution2D(1, (1, 1), padding="valid")(conv_25)
     outputs = BatchNormalization()(outputs)
-    #conv_26 = Reshape(
-    #        (input_shape[0]*input_shape[1], n_labels),
-    #        input_shape=(input_shape[0], input_shape[1], n_labels))(conv_26)
-
-    #outputs = Activation(output_mode)(conv_26)
+    outputs = Activation("relu")(outputs)
+    
     print("Build decoder done..")
 
     model = Model(inputs=inputs, outputs=outputs, name="SegNet")

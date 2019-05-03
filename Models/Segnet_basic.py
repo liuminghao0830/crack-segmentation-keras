@@ -112,6 +112,7 @@ def segnet_basic(input_shape):
 
         Conv2D(1, kernel_size=1, strides=1, padding='valid'),
         BatchNormalization(),
+        Activation('relu'),
     ]
 
 
