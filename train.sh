@@ -6,4 +6,4 @@ python train.py  --train_images="../CRACK500/traincrop/"  \
 		  --val_annotations="../CRACK500/valcrop/"  \
 		  --img_height=224  \
 		  --img_width=224  \
-		  --model="AtrousFCN_Resnet50" \
+		  --model="segnet" \

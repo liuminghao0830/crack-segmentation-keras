@@ -18,7 +18,7 @@ parser.add_argument("--epochs", type=int, default=50)
 parser.add_argument("--batch_size", type=int, default=16)
 parser.add_argument("--load_weights", type=str, default=None)
 
-parser.add_argument("--model", type=str, default='segnet')
+parser.add_argument("--model", type=str, default='segnet_basic')
 
 
 args = parser.parse_args()
@@ -33,9 +33,11 @@ img_width = args.img_width
 epochs = args.epochs
 load_weights = args.load_weights
 
-if args.val_images:
-    val_images_path = args.val_images
-    val_segs_path = args.val_annotations
+val_images_path = args.val_images
+val_segs_path = args.val_annotations
+
+num_train_images = len(glob.glob(train_images_path + '*.jpg'))
+num_valid_images = len(glob.glob(val_images_path + '*.jpg'))
 
 model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic}
 
@@ -46,17 +48,16 @@ m.compile(loss='mean_squared_error',
                 optimizer= Adam(lr=1e-4),
                 metrics=['accuracy'])
 
-if load_weights:
-    m.load_weights(load_weights)
+if load_weights: m.load_weights(load_weights)
 
 
 print("Model output shape: {}".format(m.output_shape))
 
-train_gen = LoadBatches.imageSegmentationGenerator(train_images_path, 
-            train_segs_path, batch_size, img_height, img_width)
 
-if args.val_images:
-    val_gen = LoadBatches.imageSegmentationGenerator(val_images_path, 
+train_gen = LoadBatches.imageSegmentationGenerator(train_images_path, 
+                  train_segs_path, batch_size, img_height, img_width)
+
+val_gen = LoadBatches.imageSegmentationGenerator(val_images_path, 
                 val_segs_path, batch_size, img_height, img_width)
 
 
@@ -66,9 +67,9 @@ reduceLROnPlat = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5,
                                    verbose=1, mode='auto', epsilon=0.0001)
 
 m.fit_generator(train_gen,
-                steps_per_epoch = 1896//batch_size,
+                steps_per_epoch = num_train_images//batch_size,
                 validation_data = val_gen,
-                validation_steps = 348//batch_size,
+                validation_steps = num_valid_images//batch_size,
                 epochs = epochs, 
                 verbose = 1, 
                 callbacks = [checkpoint, reduceLROnPlat])
