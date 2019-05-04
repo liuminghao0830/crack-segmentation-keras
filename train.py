@@ -4,6 +4,7 @@ from keras.optimizers import Adam
 import Models, LoadBatches
 from Models.Segnet_basic import segnet_basic
 from Models.Segnet import segnet
+from Models.Unet import unet
 import keras.backend as K
 
 parser = argparse.ArgumentParser()
@@ -40,7 +41,7 @@ val_segs_path = args.val_annotations
 num_train_images = len(glob.glob(train_images_path + '*.jpg'))
 num_valid_images = len(glob.glob(val_images_path + '*.jpg'))
 
-model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic}
+model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic, 'unet': unet}
 
 print('Training on '+args.model)
 

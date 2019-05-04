@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import keras
 from Models.Segnet import segnet
 from Models.Segnet_basic import segnet_basic
+from Models.Unet import unet
 
 
 parser = argparse.ArgumentParser()
@@ -28,7 +29,7 @@ img_height = args.img_height
 
 batch_size = 32
 
-model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic}
+model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic, 'unet':unet}
 print('Testing on '+args.model)
 
 m = model_zoo[args.model](input_shape=(img_height, img_width, 3))
