@@ -110,9 +110,8 @@ def segnet_basic(input_shape):
         BatchNormalization(),
         Activation('relu'),
 
-        Conv2D(1, kernel_size=1, strides=1, padding='valid'),
-        BatchNormalization(),
-        Activation('relu'),
+        Conv2D(2, kernel_size=1, strides=1, padding='valid'),
+        Activation('softmax'),
     ]
 
 

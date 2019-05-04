@@ -16,7 +16,7 @@ parser.add_argument("--test_images", type=str)
 parser.add_argument("--output_path", type=str)
 parser.add_argument("--img_height", type=int, default=224)
 parser.add_argument("--img_width", type=int, default=224)
-parser.add_argument("--vis", default=False)
+parser.add_argument("--vis", default=True)
 
 parser.add_argument("--model", type=str, default='segnet_basic')
 
@@ -44,18 +44,17 @@ test_gen = LoadBatches.imageSegmentationGenerator(images_path,
                images_path, batch_size, img_height, img_width)
 
 pred = m.predict_generator(test_gen, steps=len(test_images)//batch_size, verbose=1)
-pred[pred > 0.5] = 1.
-pred[pred < 0.5] = 0.
+pred = np.argmax(pred, axis=-1)
+print(pred.shape)
 
 gt_seg = glob.glob(images_path + '*.png')
 gt_seg.sort()
 
 iou_score = 0.0
 for idx in range(pred.shape[0]):
-    gt = LoadBatches.getSegmentationArr(gt_seg[idx], img_width, img_height)[:,:,0]
-    gt[gt > 0.5] = 1.
-    gt[gt < 0.5] = 0.
-    pred_label = pred[idx, :, :, 0]
+    gt = LoadBatches.getSegmentationArr(gt_seg[idx], img_width, img_height)
+    gt = np.argmax(gt, axis=-1)
+    pred_label = pred[idx, :, :]
     intersection = np.logical_and(gt, pred_label)
     union = np.logical_or(gt, pred_label)
     iou_score += np.sum(intersection,dtype=np.float) / np.sum(union,dtype=np.float)

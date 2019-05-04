@@ -1,9 +1,10 @@
-import argparse
+import argparse, glob
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau
 from keras.optimizers import Adam 
 import Models, LoadBatches
 from Models.Segnet_basic import segnet_basic
 from Models.Segnet import segnet
+import keras.backend as K
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--train_images", type=str)
@@ -44,8 +45,8 @@ model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic}
 print('Training on '+args.model)
 
 m = model_zoo[args.model](input_shape=(img_height, img_width, 3))
-m.compile(loss='mean_squared_error',
-                optimizer= Adam(lr=1e-4),
+m.compile(loss='categorical_crossentropy',
+                optimizer= Adam(lr=1e-3),
                 metrics=['accuracy'])
 
 if load_weights: m.load_weights(load_weights)
@@ -61,8 +62,8 @@ val_gen = LoadBatches.imageSegmentationGenerator(val_images_path,
                 val_segs_path, batch_size, img_height, img_width)
 
 
-checkpoint = ModelCheckpoint(args.model+'.h5', monitor='val_acc', verbose=1, 
-                    save_best_only=True, mode='max', save_weights_only=True)
+checkpoint = ModelCheckpoint(args.model+'.h5', monitor='val_loss', verbose=1, 
+                    save_best_only=True, mode='min', save_weights_only=True)
 reduceLROnPlat = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5,  
                                    verbose=1, mode='auto', epsilon=0.0001)
 

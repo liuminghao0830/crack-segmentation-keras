@@ -28,18 +28,21 @@ def getImageArr(path, width, height, imgNorm='divide',
 
 def getSegmentationArr(path, width, height):
 
-    #seg_labels = np.zeros((height, width, nClasses))
+    seg_labels = np.zeros((height, width, 2))
 
     img = cv2.imread(path, 0)
     img = cv2.resize(img, (width, height))
     img = img / 255.0
-    '''
-    for c in range(nClasses):
+    
+    img[img < 0.5] = 0.
+    img[img >= 0.5] = 1. 
+    
+    for c in range(2):
         seg_labels[: , : , c] = (img == c).astype(int)
     
-    seg_labels = np.reshape(seg_labels, (width*height, nClasses))
-    '''
-    return img[:,:,np.newaxis]
+    #seg_labels = np.reshape(seg_labels, (width*height, nClasses))
+    
+    return seg_labels
 
 
 def imageSegmentationGenerator(images_path, segs_path, batch_size, 
