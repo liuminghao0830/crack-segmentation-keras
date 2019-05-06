@@ -16,3 +16,8 @@ Adjust the paths of testing set in test.sh, and then
   sh test.sh
 ```
 to calculate mIOU of model.
+
+### Performance
+|   Method    |   SegNet   | SegNet-basic |  Unet-mini  |  Unet  |
+| ----------- | ---------- | ------------ | ----------- | ------ |
+|   mIOU (%)  |     N/A    |     44.22    |    31.41    | 46.03  |
