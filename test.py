@@ -6,9 +6,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 import keras
-from Models.Segnet import segnet
-from Models.Segnet_basic import segnet_basic
-from Models.Unet import unet
+from Models.Segnet import *
+from Models.Unet import *
 
 
 parser = argparse.ArgumentParser()
@@ -17,7 +16,7 @@ parser.add_argument("--test_images", type=str)
 parser.add_argument("--output_path", type=str)
 parser.add_argument("--img_height", type=int, default=224)
 parser.add_argument("--img_width", type=int, default=224)
-parser.add_argument("--vis", default=True)
+parser.add_argument("--vis", type=bool, default=False)
 
 parser.add_argument("--model", type=str, default='segnet_basic')
 
@@ -29,8 +28,22 @@ img_height = args.img_height
 
 batch_size = 32
 
-model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic, 'unet':unet}
+model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic, 
+             'unet_mini': unet_mini, 'unet': unet}
 print('Testing on '+args.model)
+
+
+def output_test_image(x, pr, gt, path):
+    fig=plt.figure(figsize=(12, 4))
+    fig.add_subplot(1, 3, 1)
+    plt.imshow(pr)
+    fig.add_subplot(1, 3, 2)
+    plt.imshow(x)
+    fig.add_subplot(1, 3, 3)
+    plt.imshow(gt)
+    plt.savefig(path)
+    plt.close()
+
 
 m = model_zoo[args.model](input_shape=(img_height, img_width, 3))
 m.compile(loss='mean_squared_error',
@@ -66,16 +79,11 @@ if args.vis:
     output_path = args.model+'_predict/'
     if not os.path.exists(output_path):
         os.mkdir(output_path)
-    for imgName, gtName in zip(test_images, gt_seg):
+    for i, imgName in enumerate(test_images):
         outName = imgName.replace(images_path, output_path)
         X = LoadBatches.getImageArr(imgName, img_width, img_height)
-        pr = m.predict(X[np.newaxis,:,:,:])[0]
-        gt = LoadBatches.getSegmentationArr(gtName, img_width, img_height)[:,:,0]
-        fig=plt.figure(figsize=(12, 4))
-        fig.add_subplot(1, 3, 1)
-        plt.imshow(pr[:,:,0])
-        fig.add_subplot(1, 3, 2)
-        plt.imshow(X)
-        fig.add_subplot(1, 3, 3)
-        plt.imshow(gt)
-        plt.savefig(outName)
+        pr = pred[i, :,:]
+        gt = LoadBatches.getSegmentationArr(gt_seg[i], img_width, img_height)
+        gt = np.argmax(gt, axis=-1)
+        output_test_image(X, pr, gt, outName)
+        
