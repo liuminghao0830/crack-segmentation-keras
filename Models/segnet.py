@@ -9,6 +9,8 @@ from keras.models import *
 from keras.layers import *
 from keras import backend as K
 
+from layers import *
+
 K.set_image_data_format('channels_last')
 
 
@@ -126,9 +128,9 @@ def segnet(input_shape):
     conv_25 = BatchNormalization()(conv_25)
     conv_25 = Activation("relu")(conv_25)
 
-    outputs = Convolution2D(2, (1, 1), padding="valid")(conv_25)
+    outputs = Convolution2D(1, (1, 1), padding="valid")(conv_25)
     # outputs = BatchNormalization()(outputs)
-    outputs = Activation("softmax")(outputs)
+    outputs = Activation("sigmoid")(outputs)
 
     print("Build decoder done..")
 
@@ -240,8 +242,8 @@ def segnet_basic(input_shape):
         BatchNormalization(),
         Activation('relu'),
 
-        Conv2D(2, kernel_size=1, strides=1, padding='valid'),
-        Activation('softmax'),
+        Conv2D(1, kernel_size=1, strides=1, padding='valid'),
+        Activation('sigmoid'),
     ]
 
 

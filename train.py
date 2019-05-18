@@ -2,9 +2,11 @@ import argparse, glob
 from keras.callbacks import ModelCheckpoint, LearningRateScheduler, EarlyStopping, ReduceLROnPlateau
 from keras.optimizers import Adam 
 import Models, LoadBatches
-from Models.Segnet import *
-from Models.Unet import *
+from Models.segnet import *
+from Models.unet import *
+from Models.dilation import *
 import keras.backend as K
+from metrics import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--train_images", type=str)
@@ -41,14 +43,15 @@ num_train_images = len(glob.glob(train_images_path + '*.jpg'))
 num_valid_images = len(glob.glob(val_images_path + '*.jpg'))
 
 model_zoo = {'segnet': segnet, 'segnet_basic': segnet_basic, 
-             'unet_mini': unet_mini, 'unet': unet}
+             'unet_mini': unet_mini, 'unet': unet,
+             'dilation':dilatenet}
 
 print('Training on '+args.model)
 
 m = model_zoo[args.model](input_shape = (img_height,img_width,3))
-m.compile(loss='categorical_crossentropy',
-                optimizer= Adam(lr=1e-3),
-                metrics=['accuracy'])
+m.compile(loss='binary_crossentropy',
+                optimizer= Adam(lr=1e-4),
+                metrics=['accuracy', f1_score])
 
 if load_weights: m.load_weights(load_weights)
 
